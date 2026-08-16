@@ -1,59 +1,251 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 2FAKU
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+2FAKU adalah web utility gratis untuk membuat kode autentikasi TOTP dan memeriksa status UID Facebook secara massal. Aplikasi berjalan sebagai static website di browser dan dirancang untuk deployment gratis melalui Cloudflare Pages.
 
-## About Laravel
+Production domain: [2faku.com](https://2faku.com)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 2FA Authenticator
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Menghasilkan kode TOTP enam digit setiap 30 detik.
+- Mendukung secret key Base32.
+- Secret key berbeda untuk setiap grup.
+- Tambah, pilih, dan hapus grup.
+- Data grup disimpan pada `localStorage` browser.
+- Copy kode autentikasi dengan satu klik.
+- Tidak mengirim secret key ke backend.
 
-## Learning Laravel
+### Check Live UID Facebook
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Memeriksa banyak UID dalam satu proses.
+- Hanya memproses baris numerik UID.
+- Mengabaikan email, password, secret key, baris kosong, dan UID duplikat.
+- Pemeriksaan paralel dengan progress real-time.
+- Memisahkan hasil Live dan Dead.
+- Copy dan export hasil ke file `.txt`.
+- Menampilkan kartu statistik akun aktif, mati, dan total akun.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Status UID ditentukan berdasarkan respons foto profil dan CDN publik Facebook. Perubahan endpoint, privasi akun, pembatasan wilayah, atau rate limit Facebook dapat memengaruhi hasil.
 
-## Laravel Sponsors
+## Teknologi
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- HTML5
+- CSS dan Tailwind CSS v4 build pipeline
+- Vanilla JavaScript
+- Web Crypto API untuk HMAC-SHA1 TOTP
+- Vite v7
+- Cloudflare Pages
+- Laravel 12 sebagai source/backup lama, tidak dibutuhkan pada deployment static
 
-### Premium Partners
+## Persyaratan
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Untuk versi static yang direkomendasikan:
 
-## Contributing
+- Node.js 22 atau lebih baru
+- npm
+- Browser modern dengan Web Crypto API
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+PHP, Composer, database, dan web server Laravel tidak diperlukan untuk menjalankan versi Cloudflare.
 
-## Code of Conduct
+## Instalasi lokal
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Clone repository:
 
-## Security Vulnerabilities
+```bash
+git clone https://github.com/awinnata29/2fa.git
+cd 2fa
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Install dependency secara reproducible:
 
-## License
+```bash
+npm ci
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Jalankan development server:
+
+```bash
+npm run dev
+```
+
+Buka alamat yang ditampilkan Vite, biasanya `http://localhost:5173`.
+
+Halaman yang tersedia:
+
+- `/` — 2FA Authenticator
+- `/check-live-uid-facebook/` — Check Live UID Facebook
+
+## Production build
+
+Jalankan:
+
+```bash
+npm run build
+```
+
+Vite akan:
+
+1. Memproses CSS dan JavaScript.
+2. Menghasilkan dua halaman HTML production.
+3. Menyalin gambar promosi, favicon, sitemap, robots, redirects, dan security headers.
+4. Menyimpan seluruh hasil deployment di folder `dist`.
+
+Preview hasil production:
+
+```bash
+npm run preview
+```
+
+Jangan mengedit isi folder `dist` secara langsung karena folder tersebut dibuat ulang setiap build.
+
+## Deploy ke Cloudflare Pages melalui GitHub
+
+1. Push perubahan ke branch `main` GitHub.
+2. Masuk ke Cloudflare Dashboard.
+3. Buka **Workers & Pages**.
+4. Pilih **Create application** → **Pages** → **Connect to Git**.
+5. Hubungkan repository `awinnata29/2fa`.
+6. Gunakan konfigurasi berikut:
+
+| Pengaturan | Nilai |
+|---|---|
+| Framework preset | `None` |
+| Production branch | `main` |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Root directory | `/` |
+| Node.js version | `22` |
+
+7. Pilih **Save and Deploy**.
+8. Setelah deployment preview berhasil, buka **Custom domains**.
+9. Tambahkan `2faku.com` dan ikuti konfigurasi DNS Cloudflare.
+
+Setiap push baru ke branch `main` akan otomatis membuat deployment baru. Instruksi ringkas juga tersedia di [CLOUDFLARE_DEPLOY.md](CLOUDFLARE_DEPLOY.md).
+
+## Struktur penting
+
+```text
+2fa/
+├── index.html                          # Halaman static Authenticator
+├── check-live-uid-facebook/
+│   └── index.html                      # Halaman static Check UID
+├── resources/
+│   ├── css/app.css                     # Seluruh design system
+│   ├── js/app.js                       # TOTP, grup, dan UID checker
+│   └── views/home.blade.php            # Source Laravel/backup
+├── public/
+│   ├── images/ads/                     # Banner promosi
+│   ├── robots.txt
+│   ├── sitemap.xml
+│   ├── _headers                        # Security dan cache headers
+│   └── _redirects                      # Routing Cloudflare Pages
+├── scripts/postbuild.mjs               # Menyalin aset static ke dist
+├── vite.config.js                      # Multi-page Vite configuration
+└── dist/                               # Output build, tidak masuk Git
+```
+
+## Penyimpanan data dan privasi
+
+Data authenticator disimpan di browser menggunakan key berikut:
+
+- `2faku-groups`
+- `2faku-active-group`
+
+Data lama dari `keylime-groups` tetap dibaca untuk kebutuhan migrasi. Menghapus site data atau local storage browser akan menghapus seluruh grup dan secret key pada perangkat tersebut.
+
+Jangan membagikan secret key 2FA, file export sensitif, `.env`, access token, atau kredensial akun melalui issue maupun commit Git.
+
+## TOTP
+
+Generator menggunakan:
+
+- Base32 decoding
+- HMAC-SHA1
+- Time step 30 detik
+- Output enam digit
+
+Perhitungan dilakukan melalui Web Crypto API pada browser. Waktu perangkat harus akurat agar kode sama dengan server layanan tujuan.
+
+## SEO
+
+Project sudah menyertakan:
+
+- Title dan meta description berbeda untuk setiap halaman.
+- Canonical URL ke `https://2faku.com`.
+- Open Graph dan Twitter metadata.
+- Structured data `SoftwareApplication`, `WebApplication`, dan `WebSite`.
+- `robots.txt`.
+- `sitemap.xml`.
+- URL nyata untuk halaman Check UID tanpa hash routing.
+
+Setelah domain aktif, tambahkan `https://2faku.com/sitemap.xml` ke Google Search Console dan gunakan URL Inspection untuk meminta indexing.
+
+## Pengujian
+
+Sebelum push atau deployment:
+
+```bash
+npm ci
+npm run build
+npm run preview
+```
+
+Checklist manual:
+
+- Generator menghasilkan TOTP enam digit.
+- Countdown memperbarui kode setiap 30 detik.
+- Setiap grup memiliki secret key berbeda.
+- Tambah dan hapus grup bekerja di desktop dan mobile.
+- Data tetap tersedia setelah refresh.
+- Filter Check UID hanya mengambil baris numerik.
+- Copy dan export hasil bekerja.
+- Halaman `/check-live-uid-facebook/` dapat dibuka langsung.
+- `robots.txt` dan `sitemap.xml` dapat diakses.
+
+Legacy Laravel test, jika PHP dan Composer tersedia:
+
+```bash
+composer install
+php artisan test
+```
+
+## Troubleshooting
+
+### `npm ci` gagal
+
+Pastikan Node.js versi 22 digunakan, hapus `node_modules`, lalu jalankan kembali:
+
+```bash
+npm ci
+```
+
+### Halaman Check UID menghasilkan semua Dead
+
+Pastikan browser tidak memblokir request ke `graph.facebook.com`. Ad blocker, DNS filter, rate limit, atau perubahan respons Facebook dapat memengaruhi pemeriksaan.
+
+### Kode TOTP berbeda
+
+Pastikan secret key benar dan waktu perangkat tersinkronisasi otomatis. Spasi dan tanda hubung pada secret key akan diabaikan.
+
+### Cloudflare menampilkan 404 pada Check UID
+
+Pastikan build output memakai folder `dist` dan file `public/_redirects` ikut tersalin oleh build.
+
+## Workflow pengembangan
+
+```bash
+git checkout -b feature/nama-fitur
+npm ci
+npm run dev
+npm run build
+git add .
+git commit -m "Describe the change"
+git push origin feature/nama-fitur
+```
+
+Jangan commit folder `node_modules`, `dist`, `vendor`, file `.env`, atau credential apa pun.
+
+## Lisensi
+
+Project ini menggunakan lisensi MIT sesuai konfigurasi project Laravel awal.
