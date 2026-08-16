@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    @php
+        $isUidPage = ($page ?? 'authenticator') === 'uid';
+        $seoTitle = $isUidPage ? 'Check Live UID Facebook Gratis & Cepat - 2FAKU' : '2FA Authenticator Online Gratis - Generator TOTP 2FAKU';
+        $seoDescription = $isUidPage ? 'Periksa banyak UID Facebook aktif atau mati sekaligus secara cepat. Filter UID otomatis, hasil terpisah, copy, dan export gratis.' : 'Buat kode autentikasi TOTP 2FA secara online, cepat, dan aman. Mendukung banyak secret key dan grup, diproses langsung di browser.';
+        $canonicalUrl = $isUidPage ? route('check-uid') : route('home');
+    @endphp
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11142b">
+    <meta name="description" content="{{ $seoDescription }}">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    <meta property="og:type" content="website"><meta property="og:site_name" content="2FAKU"><meta property="og:locale" content="id_ID">
+    <meta property="og:title" content="{{ $seoTitle }}"><meta property="og:description" content="{{ $seoDescription }}"><meta property="og:url" content="{{ $canonicalUrl }}">
+    <meta name="twitter:card" content="summary"><meta name="twitter:title" content="{{ $seoTitle }}"><meta name="twitter:description" content="{{ $seoDescription }}">
+    <title>{{ $seoTitle }}</title>
+    <script type="application/ld+json">{!! json_encode([
+        '@'.'context' => 'https://schema.org',
+        '@type' => $isUidPage ? 'WebApplication' : 'SoftwareApplication',
+        'name' => $isUidPage ? '2FAKU Check Live UID Facebook' : '2FAKU Authenticator',
+        'url' => $canonicalUrl,
+        'description' => $seoDescription,
+        'applicationCategory' => 'SecurityApplication',
+        'operatingSystem' => 'Any',
+        'browserRequirements' => 'Requires JavaScript and a modern web browser',
+        'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'IDR'],
+        'publisher' => ['@type' => 'Organization', 'name' => '2FAKU', 'url' => route('home')],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    @unless($isUidPage)<script type="application/ld+json">{!! json_encode(['@'.'context' => 'https://schema.org', '@type' => 'WebSite', 'name' => '2FAKU', 'alternateName' => '2FAKU.COM', 'url' => route('home')], JSON_UNESCAPED_SLASHES) !!}</script>@endunless
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body data-initial-page="{{ $isUidPage ? 'uid' : 'authenticator' }}">
+<div class="app">
+    <header class="topbar">
+        <a class="logo" href="/" aria-label="2FAKU home">
+            <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 14v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <span><b>2FA<span>KU</span></b><small>Authenticator</small></span>
+        </a>
+        <nav class="main-nav" aria-label="Navigasi utama">
+            <a class="nav-link {{ !$isUidPage ? 'active' : '' }}" href="{{ route('home', absolute: false) }}" data-page="authenticator"><svg viewBox="0 0 24 24"><path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"/></svg><span>Authenticator</span></a>
+            <a class="nav-link {{ $isUidPage ? 'active' : '' }}" href="{{ route('check-uid', absolute: false) }}" data-page="uid"><svg viewBox="0 0 24 24"><path d="M15 18H9a6 6 0 0 1 0-12h6a6 6 0 0 1 0 12Z"/><circle cx="9" cy="12" r="2.3"/><path d="M13.5 10h3M13.5 13h2"/></svg><span>Check Live UID</span></a>
+            <a class="nav-link" href="https://qmail.lol" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg><span>Email</span><small>&nearr;</small></a>
+        </nav>
+    </header>
+
+    <main id="authenticatorPage" class="dashboard app-page {{ $isUidPage ? 'hidden' : '' }}">
+        <aside class="groups-panel panel">
+            <div class="workspace-cover"><span>2F</span><div><b>2FAKU Vault</b><small>Private workspace</small></div></div>
+            <div class="panel-heading"><div><span class="overline">Workspace</span><h2>Grup saya</h2></div><button id="openGroupModal" class="square-button" type="button" aria-label="Tambah grup"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+            <nav id="groupList" class="group-list" aria-label="Daftar grup"></nav>
+            <div class="group-scroll-hint"><span>Geser ke bawah untuk grup lainnya</span><svg viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></svg></div>
+            <button id="addGroupButton" class="add-group" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Tambah grup baru</button>
+            <div class="local-note"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.3 7 10 4.2-1.7 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg><p><b>Data tetap privat</b><span>Semua grup disimpan hanya pada perangkat ini.</span></p></div>
+        </aside>
+
+        <div class="mobile-card-spacer" aria-hidden="true"></div>
+
+        <section class="generator-panel panel" aria-labelledby="generator-title">
+            <div class="generator-head">
+                <div class="generator-icon"><svg viewBox="0 0 24 24"><path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"/><path d="M12 14v3"/></svg></div>
+                <div><h1 id="generator-title">Generator kode 2FA</h1><p>Buat kode autentikasi TOTP secara instan.</p></div>
+                <span class="generator-status"><i></i>Private</span>
+            </div>
+
+            <div class="input-section">
+                <div class="field-label"><label for="secret">Secret key</label><span><i></i> BASE32</span></div>
+                <div class="secret-field">
+                    <svg class="field-icon" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 7-7m-2 2 2 2m-5 1 2 2"/></svg>
+                    <input id="secret" type="text" placeholder="JBSWY3DPEHPK3PXP" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="fieldHint error">
+                    <div class="field-actions"><button id="pasteSecret" class="paste-action" type="button"><svg viewBox="0 0 24 24"><path d="M9 5h6M9 3h6v4H9z"/><path d="M9 5H7a2 2 0 0 0-2 2v12h14V7a2 2 0 0 0-2-2h-2"/></svg><span>Paste</span></button></div>
+                </div>
+                <div class="field-meta"><span id="fieldHint">Spasi dan tanda hubung otomatis diabaikan</span><span id="selectedGroupLabel">Grup: Personal</span></div>
+                <div id="error" class="error hidden" role="alert"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16.5h.01"/></svg><span></span></div>
+            </div>
+
+            <div id="emptyState" class="code-empty">
+                <div class="code-placeholder" aria-hidden="true"><span>•</span><span>•</span><span>•</span><i></i><span>•</span><span>•</span><span>•</span></div>
+                <div class="empty-status"><i></i><span>Menunggu secret key</span></div>
+                <b>Kode autentikasi akan muncul di sini</b><p>Masukkan secret key yang valid untuk memulai.</p>
+            </div>
+
+            <div id="resultBox" class="code-card hidden" aria-live="polite">
+                <div class="code-head"><span><i></i>Kode aktif</span><small>Berubah setiap 30 detik</small></div>
+                <button id="codeButton" class="otp" type="button" aria-label="Salin kode"><span id="otp">000 000</span><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>
+                <div class="countdown-row"><span>Sisa waktu</span><b><span id="countdown">30</span>s</b></div>
+                <div class="progress"><div id="progressBar"></div></div>
+            </div>
+
+            <div class="security-strip"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.3 7 10 4.2-1.7 7-5.4 7-10V6l-7-3Z"/></svg><div><b>Private by design</b><p>Secret key tidak dikirim, direkam, atau meninggalkan browser Anda.</p></div></div>
+        </section>
+
+        <aside class="promo-column">
+            <div class="promo-heading"><div><span class="overline">REKOMENDASI</span><h2>Partner pilihan</h2></div><span class="sponsored-label">Sponsored</span></div>
+            <a class="ad-banner" href="https://akundigital.id" target="_blank" rel="noopener sponsored" aria-label="Kunjungi AkunDigital — Marketplace digital terpercaya">
+                <img src="{{ asset('images/ads/akundigital-banner-1.png') }}" alt="AkunDigital, marketplace digital terpercaya dengan harga murah dan terjangkau" width="2172" height="724">
+                <span class="ad-overlay">Kunjungi situs <b>↗</b></span>
+            </a>
+            <a class="ad-banner" href="https://akundigital.id" target="_blank" rel="noopener sponsored" aria-label="Kunjungi AkunDigital — Marketplace digital terpercaya">
+                <img src="{{ asset('images/ads/akundigital-banner-2.png') }}" alt="AkunDigital, marketplace digital terpercaya untuk akun sosial media, iklan, dan AI tools" width="2172" height="724" loading="lazy">
+                <span class="ad-overlay">Lihat penawaran <b>↗</b></span>
+            </a>
+        </aside>
+    </main>
+    <main id="uidPage" class="uid-page app-page {{ $isUidPage ? '' : 'hidden' }}">
+        <section class="uid-workspace">
+            <header class="uid-workspace-head"><div class="uid-brand"><span>f</span></div><div><h1>Check Live UID Facebook <span>High Speed</span></h1><p>Check UID status (Facebook account)</p></div></header>
+            <div class="batch-field-head"><label for="facebookUidList">Masukkan daftar UID <span>(satu UID per baris)</span></label><button id="copyUidInput" type="button">▣ Copy (<span>0</span>)</button></div>
+            <textarea id="facebookUidList" placeholder="Contoh:&#10;100012345678901&#10;100023456789012&#10;100034567890123&#10;..."></textarea>
+            <div class="batch-progress-meta"><span id="progressStatus">Siap memeriksa</span><b id="progressPercent">0%</b></div>
+            <div class="batch-progress"><div id="uidProgressBar"></div></div>
+            <div class="batch-toolbar">
+                <div><button id="checkUidButton" class="check-button" type="button"><span>▶</span> Check</button><button id="resetUidButton" class="reset-button" type="button"><span>↶</span> Reset</button></div>
+                <div class="result-mode"><span>Output</span><button class="active" type="button" data-output="uid">UID only</button><button type="button" data-output="original">Original input</button></div>
+            </div>
+            <div class="batch-results">
+                <section class="result-panel live-panel"><header><b><i>✓</i> Live Account (<span id="liveCount">0</span>)</b><div><button type="button" data-copy-result="live">▣ Copy</button><button type="button" data-export-result="live">⇩ Export</button></div></header><div id="liveResults" class="result-list"><span class="no-result">Belum ada hasil</span></div></section>
+                <section class="result-panel dead-panel"><header><b><i>×</i> Dead Account (<span id="deadCount">0</span>)</b><div><button type="button" data-copy-result="dead">▣ Copy</button><button type="button" data-export-result="dead">⇩ Export</button></div></header><div id="deadResults" class="result-list"><span class="no-result">Belum ada hasil</span></div></section>
+            </div>
+            <div class="account-stats">
+                <article class="stat-card stat-live"><div><span><i></i>AKUN AKTIF</span><strong id="activeStat">0</strong><small><b id="activePercent">0%</b> dari total akun</small></div><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div></article>
+                <article class="stat-card stat-dead"><div><span><i></i>AKUN MATI</span><strong id="deadStat">0</strong><small><b id="deadPercent">0%</b> dari total akun</small></div><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></svg></div></article>
+                <article class="stat-card stat-total"><div><span><i></i>TOTAL AKUN</span><strong id="totalStat">0</strong><small>Total akun yang diperiksa</small></div><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M5 20v-7M12 20V4M19 20v-11"/></svg></div></article>
+            </div>
+        </section>
+    </main>
+    <footer class="page-footer">
+        <div class="footer-line"></div>
+        <div class="footer-brand"><span class="footer-mark">2F</span><div><b>2FAKU<span>.COM</span></b><small>© {{ date('Y') }} · All rights reserved</small></div></div>
+        <div class="footer-line"></div>
+    </footer>
+</div>
+
+<div id="groupModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-backdrop" type="button" aria-label="Tutup dialog"></button>
+    <div class="modal-card">
+        <div class="modal-head"><div><span class="overline">ORGANISASI</span><h2 id="modalTitle">Tambah grup baru</h2></div><button id="closeGroupModal" class="square-button" type="button" aria-label="Tutup"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+        <form id="groupForm"><label for="groupName">Nama grup</label><input id="groupName" maxlength="24" placeholder="Contoh: Kantor" autocomplete="off" required><span>Pilih warna</span><div id="colorOptions" class="color-options"><label><input type="radio" name="color" value="lime" checked><i class="lime"></i></label><label><input type="radio" name="color" value="blue"><i class="blue"></i></label><label><input type="radio" name="color" value="orange"><i class="orange"></i></label><label><input type="radio" name="color" value="violet"><i class="violet"></i></label><label><input type="radio" name="color" value="rose"><i class="rose"></i></label></div><div class="modal-actions"><button id="cancelGroup" class="button secondary" type="button">Batal</button><button class="button primary" type="submit">Buat grup</button></div></form>
+    </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg><span>Kode berhasil disalin</span></div>
+</body>
+</html>
