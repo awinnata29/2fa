@@ -77,5 +77,5 @@
 @media(max-width:760px){.generator-panel{padding:0 17px 25px}.generator-head{margin:0 -17px 24px;padding:17px}.generator-head h1{font-size:15px}.generator-head p{display:none}.generator-icon{width:38px;height:38px}.generator-status{font-size:0;padding:7px}.generator-status i{width:7px;height:7px}}
 
 /* Exported 2FAKU identity */
-.logo-mark{padding:5px;border:1px solid #dce7ff;background:linear-gradient(145deg,#fff,#eef5ff);box-shadow:0 8px 20px rgba(40,92,220,.16)}
+.logo-mark{padding:0;border:0;background:transparent;box-shadow:none}
 .footer-mark{padding:3px;border:1px solid #dce7ff;background:linear-gradient(145deg,#fff,#eef5ff);box-shadow:0 5px 13px rgba(40,92,220,.13)}
