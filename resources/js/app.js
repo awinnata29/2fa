@@ -38,6 +38,17 @@ async function generateTOTP(secret) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const $ = (id) => document.getElementById(id);
+    const authenticatorPage = $('authenticatorPage');
+    const uidPage = $('uidPage');
+    const syncVisiblePage = () => {
+        const showUid = document.body.dataset.initialPage === 'uid' || location.pathname.replace(/\/+$/, '') === '/check-live-uid-facebook';
+        authenticatorPage.classList.toggle('hidden', showUid);
+        authenticatorPage.toggleAttribute('hidden', showUid);
+        uidPage.classList.toggle('hidden', !showUid);
+        uidPage.toggleAttribute('hidden', !showUid);
+    };
+    syncVisiblePage();
+
     const secret = $('secret');
     const result = $('resultBox');
     const empty = $('emptyState');

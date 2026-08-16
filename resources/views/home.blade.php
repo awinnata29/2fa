@@ -49,7 +49,7 @@
         <div class="privacy-badge" aria-label="Diproses secara lokal"><i></i><span>100% lokal</span></div>
     </header>
 
-    <main id="authenticatorPage" class="dashboard app-page {{ $isUidPage ? 'hidden' : '' }}">
+    <main id="authenticatorPage" class="dashboard app-page {{ $isUidPage ? 'hidden' : '' }}" @if($isUidPage) hidden @endif>
         <aside class="groups-panel panel">
             <div class="workspace-cover"><span>2F</span><div><b>2FAKU Vault</b><small>Private workspace</small></div></div>
             <div class="panel-heading"><div><span class="overline">Workspace</span><h2>Grup saya</h2></div><button id="openGroupModal" class="square-button" type="button" aria-label="Tambah grup"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
@@ -107,7 +107,7 @@
             </a>
         </aside>
     </main>
-    <main id="uidPage" class="uid-page app-page {{ $isUidPage ? '' : 'hidden' }}">
+    <main id="uidPage" class="uid-page app-page {{ $isUidPage ? '' : 'hidden' }}" @unless($isUidPage) hidden @endunless>
         <section class="uid-workspace">
             <header class="uid-workspace-head"><div class="uid-brand"><span>f</span></div><div><h1>Check Live UID Facebook <span>High Speed</span></h1><p>Check UID status (Facebook account)</p></div></header>
             <div class="batch-field-head"><label for="facebookUidList">Masukkan daftar UID <span>(satu UID per baris)</span></label><button id="copyUidInput" type="button">▣ Copy (<span>0</span>)</button></div>
