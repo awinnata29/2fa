@@ -1,6 +1,6 @@
 # 2FAKU
 
-2FAKU adalah web utility gratis untuk membuat kode autentikasi TOTP dan memeriksa status UID Facebook secara massal. Aplikasi berjalan sebagai static website di browser dan dirancang untuk deployment gratis melalui Cloudflare Pages.
+2FAKU adalah web utility gratis untuk membuat kode autentikasi TOTP dan memeriksa status UID Facebook secara massal. Aplikasi berjalan sebagai static website di browser dan dirancang untuk deployment gratis melalui Cloudflare Workers.
 
 Production domain: [2faku.com](https://2faku.com)
 
@@ -35,7 +35,7 @@ Status UID ditentukan berdasarkan respons foto profil dan CDN publik Facebook. P
 - Vanilla JavaScript
 - Web Crypto API untuk HMAC-SHA1 TOTP
 - Vite v7
-- Cloudflare Pages
+- Cloudflare Workers Static Assets
 - Laravel 12 sebagai source/backup lama, tidak dibutuhkan pada deployment static
 
 ## Persyaratan
@@ -99,26 +99,27 @@ npm run preview
 
 Jangan mengedit isi folder `dist` secara langsung karena folder tersebut dibuat ulang setiap build.
 
-## Deploy ke Cloudflare Pages melalui GitHub
+## Deploy ke Cloudflare Workers melalui GitHub
 
 1. Push perubahan ke branch `main` GitHub.
 2. Masuk ke Cloudflare Dashboard.
 3. Buka **Workers & Pages**.
-4. Pilih **Create application** → **Pages** → **Connect to Git**.
+4. Buat Worker dan hubungkan repository GitHub.
 5. Hubungkan repository `awinnata29/2fa`.
 6. Gunakan konfigurasi berikut:
 
 | Pengaturan | Nilai |
 |---|---|
-| Framework preset | `None` |
 | Production branch | `main` |
 | Build command | `npm run build` |
-| Build output directory | `dist` |
+| Deploy command | `npx wrangler deploy` |
 | Root directory | `/` |
 | Node.js version | `22` |
 
-7. Pilih **Save and Deploy**.
-8. Setelah deployment preview berhasil, buka **Custom domains**.
+Folder output tidak diisi di dashboard Workers terbaru. `wrangler.jsonc` sudah mengarahkan Static Assets ke folder `./dist`.
+
+7. Pilih token API Workers Builds yang tersedia, lalu deploy.
+8. Setelah deployment berhasil, buka **Domains**.
 9. Tambahkan `2faku.com` dan ikuti konfigurasi DNS Cloudflare.
 
 Setiap push baru ke branch `main` akan otomatis membuat deployment baru. Instruksi ringkas juga tersedia di [CLOUDFLARE_DEPLOY.md](CLOUDFLARE_DEPLOY.md).
@@ -139,8 +140,9 @@ Setiap push baru ke branch `main` akan otomatis membuat deployment baru. Instruk
 │   ├── robots.txt
 │   ├── sitemap.xml
 │   ├── _headers                        # Security dan cache headers
-│   └── _redirects                      # Routing Cloudflare Pages
+│   └── _redirects                      # Redirect kompatibel Cloudflare
 ├── scripts/postbuild.mjs               # Menyalin aset static ke dist
+├── wrangler.jsonc                      # Konfigurasi deploy Static Assets
 ├── vite.config.js                      # Multi-page Vite configuration
 └── dist/                               # Output build, tidak masuk Git
 ```
@@ -230,7 +232,7 @@ Pastikan secret key benar dan waktu perangkat tersinkronisasi otomatis. Spasi da
 
 ### Cloudflare menampilkan 404 pada Check UID
 
-Pastikan build output memakai folder `dist` dan file `public/_redirects` ikut tersalin oleh build.
+Pastikan `wrangler.jsonc` memakai `assets.directory: "./dist"` dan proses build berhasil.
 
 ## Workflow pengembangan
 
