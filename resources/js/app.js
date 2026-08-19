@@ -191,14 +191,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const extractFacebookUid = (value) => {
         const input = value.trim();
-        if (/^\d{1,20}$/.test(input)) return input;
+        if (!input) return null;
+
+        // 1. Explicit ID/UID/AID/FBID/Account/Profile/No label match:
+        // e.g. "aid : 1000...", "fbid : 1000...", "no id : 1000...", "ID : 1000...", "profile id : 1000..."
+        const labelMatch = input.match(/(?:(?:facebook|fb|user|akun|account|profile|no|nomor)[_\s]*(?:uid|id|aid|fid)|(?:uid|id|aid|fid)[_\s]*(?:facebook|fb|user|akun|account|profile)|uid|id|aid|fid|fbid)\s*[:=–—\-\t]\s*(\d{4,20})/i);
+        if (labelMatch) return labelMatch[1];
+
+        // 2. Any arbitrary label followed by standard UID (10-20 digits):
+        // e.g. "kata_apapun_itu : 100015280294215", "apapun : 61550123456789"
+        const genericLabelMatch = input.match(/^[^:\n\r=–—\-]+[:=–—\-]\s*(\d{10,20})$/i);
+        if (genericLabelMatch) return genericLabelMatch[1];
+
+        // 3. Facebook URLs: facebook.com/profile.php?id=1000... or facebook.com/1000...
         try {
-            const url = new URL(input.includes('://') ? input : `https://${input}`);
-            const queryId = url.searchParams.get('id');
-            if (queryId && /^\d{1,20}$/.test(queryId)) return queryId;
-            const pathId = url.pathname.split('/').filter(Boolean)[0];
-            return /^\d{1,20}$/.test(pathId || '') ? pathId : null;
-        } catch { return null; }
+            if (/facebook\.com|fb\.com|fb\.watch/i.test(input)) {
+                const url = new URL(input.includes('://') ? input : `https://${input}`);
+                const queryId = url.searchParams.get('id');
+                if (queryId && /^\d{4,20}$/.test(queryId)) return queryId;
+                const pathSegments = url.pathname.split('/').filter(Boolean);
+                const pathId = pathSegments.find((seg) => /^\d{4,20}$/.test(seg));
+                if (pathId) return pathId;
+            }
+        } catch {}
+
+        // 4. Pipe/delimiter separated line (combo format: uid|pass|2fa|... or email|pass|uid|...)
+        if (/[|\t;]/.test(input)) {
+            const parts = input.split(/[|\t;]/).map((p) => p.trim());
+            const uidPart = parts.find((p) => /^(?:1000\d{7,16}|615\d{7,16}|\d{10,20})$/.test(p));
+            if (uidPart) return uidPart;
+            if (/^\d{4,20}$/.test(parts[0])) return parts[0];
+        }
+
+        // 5. Typical Facebook UID pattern anywhere in line (1000xxxxxxxxxxx or 615xxxxxxxxxxx)
+        const fbUidPattern = input.match(/\b(1000\d{7,16}|615\d{7,16})\b/);
+        if (fbUidPattern) return fbUidPattern[1];
+
+        // 6. Standalone digits on the line (10 to 20 digits, standard Facebook UID length)
+        if (/^\d{10,20}$/.test(input)) return input;
+
+        return null;
     };
 
     const uidInput = $('facebookUidList');
